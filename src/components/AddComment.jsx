@@ -1,94 +1,66 @@
-import { Component } from 'react'
-import { Button, Form } from 'react-bootstrap'
+import { Component } from "react";
+import { Button, Form } from "react-bootstrap";
 
 class AddComment extends Component {
   state = {
-    comment: {
-      comment: '',
-      rate: 1,
-      elementId: this.props.asin,
-    },
-  }
-
-  sendComment = async (e) => {
-    e.preventDefault()
-    try {
-      let response = await fetch(
-        'https://striveschool-api.herokuapp.com/api/comments',
-        {
-          method: 'POST',
-          body: JSON.stringify(this.state.comment),
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer inserisci-qui-il-tuo-token',
-          },
-        }
-      )
-      if (response.ok) {
-        alert('Recensione inviata!')
-        this.setState({
-          comment: {
-            comment: '',
-            rate: 1,
-            elementId: this.props.asin,
-          },
-        })
-      } else {
-        throw new Error('Qualcosa è andato storto')
-      }
-    } catch (error) {
-      alert(error)
+    newComment: {
+      comment: "",
+      rate: "1",
+      elementId: this.props.asin
     }
-  }
+  };
+
+  handleSubmit = async e => {
+    e.preventDefault();
+
+    console.log("fetchComments");
+    const resp = await fetch("https://striveschool-api.herokuapp.com/api/comments/", {
+      method: "POST",
+      body: JSON.stringify(this.state.newComment),
+      headers: {
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjdkN2E2NTNhMzhjYjAwMTVmNjNkNGEiLCJpYXQiOjE3MTk0OTkzNjUsImV4cCI6MTcyMDcwODk2NX0._sLOFwceL_eYGDe30nmimOoigh2oUxvTNmf4O1ZVrUM",
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (resp.ok) {
+      alert("commento inviato");
+    }
+  };
 
   render() {
     return (
-      <div className="my-3">
-        <Form onSubmit={this.sendComment}>
-          <Form.Group className="mb-2">
-            <Form.Label>Recensione</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Inserisci qui il testo"
-              value={this.state.comment.comment}
-              onChange={(e) =>
-                this.setState({
-                  comment: {
-                    ...this.state.comment,
-                    comment: e.target.value,
-                  },
-                })
-              }
-            />
-          </Form.Group>
-          <Form.Group className="mb-2">
-            <Form.Label>Valutazione</Form.Label>
-            <Form.Control
-              as="select"
-              value={this.state.comment.rate}
-              onChange={(e) =>
-                this.setState({
-                  comment: {
-                    ...this.state.comment,
-                    rate: e.target.value,
-                  },
-                })
-              }
-            >
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </Form.Control>
-          </Form.Group>
-          <Button variant="primary" type="submit">
-            Invia
-          </Button>
-        </Form>
-      </div>
-    )
+      <Form onSubmit={this.handleSubmit}>
+        <Form.Group className="mb-3" controlId="formComment">
+          <Form.Label>Commento</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Inserisci il tuo commento"
+            value={this.state.newComment.comment}
+            onChange={e => this.setState({ newComment: { ...this.state.newComment, comment: e.target.value } })}
+            required
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="formComment">
+          <Form.Select
+            aria-label="Rate"
+            value={this.state.newComment.rate}
+            onChange={e => this.setState({ newComment: { ...this.state.newComment, rate: e.target.value } })}
+          >
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+            <option value="4">Four</option>
+            <option value="5">Five</option>
+          </Form.Select>
+        </Form.Group>
+        <Button variant="dark" className="mb-3" type="submit">
+          Invia commento
+        </Button>
+      </Form>
+    );
   }
 }
 
-export default AddComment
+export default AddComment;

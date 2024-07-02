@@ -1,50 +1,51 @@
-import { Component } from 'react'
-import CommentList from './CommentList'
-import AddComment from './AddComment'
-import Loading from './Loading'
-import Error from './Error'
+import { Component } from "react";
+import CommentsList from "./CommentsList";
+import AddComment from "./AddComment";
 
 class CommentArea extends Component {
   state = {
     comments: [],
-    isLoading: true,
-    isError: false,
-  }
+    isLoading: true
+  };
 
-  componentDidMount = async () => {
+  fetchComments = async () => {
     try {
-      let response = await fetch(
-        'https://striveschool-api.herokuapp.com/api/comments/' +
-          this.props.asin,
-        {
-          headers: {
-            Authorization: 'Bearer inserisci-qui-il-tuo-token',
-          },
+      console.log("fetchComments");
+      const resp = await fetch("https://striveschool-api.herokuapp.com/api/comments/" + this.props.asin, {
+        headers: {
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjdkN2E2NTNhMzhjYjAwMTVmNjNkNGEiLCJpYXQiOjE3MTk0OTkzNjUsImV4cCI6MTcyMDcwODk2NX0._sLOFwceL_eYGDe30nmimOoigh2oUxvTNmf4O1ZVrUM"
         }
-      )
-      console.log(response)
-      if (response.ok) {
-        let comments = await response.json()
-        this.setState({ comments: comments, isLoading: false, isError: false })
+      });
+      if (resp.ok) {
+        const comments = await resp.json();
+        // this.setState({comments: comments})
+        this.setState({ comments }); // sintassi equivalente alla precedente}
+        console.log("comments:", comments);
       } else {
-        this.setState({ isLoading: false, isError: true })
+        throw new Error("Errore nel reperimento delle recensioni");
       }
-    } catch (error) {
-      console.log(error)
-      this.setState({ isLoading: false, isError: true })
+    } catch (err) {
+      console.log(err);
+    } finally {
+      this.setState({ isLoading: false }); // sintassi equivalente alla precedente
     }
+  };
+
+  componentDidMount() {
+    console.log("componentDidMount (CommentArea)");
+    this.fetchComments();
   }
 
   render() {
+    console.log("render (CommentArea)");
     return (
-      <div className="text-center">
-        {this.state.isLoading && <Loading />}
-        {this.state.isError && <Error />}
+      <>
         <AddComment asin={this.props.asin} />
-        <CommentList commentsToShow={this.state.comments} />
-      </div>
-    )
+        <CommentsList comments={this.state.comments} isLoading={this.state.isLoading} />
+      </>
+    );
   }
 }
 
-export default CommentArea
+export default CommentArea;
